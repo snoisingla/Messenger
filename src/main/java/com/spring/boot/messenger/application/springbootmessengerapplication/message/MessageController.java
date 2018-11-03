@@ -15,7 +15,7 @@ public class MessageController {
 	@Autowired
 	private MessageDAOService service;
 	
-	@PostMapping(path = "/messages")
+	@PostMapping(path = "messages")
 	public void sendMessage(@RequestBody MessageImplementation message) {
 		System.out.println("controller");
 		service.addMessage(message);
@@ -33,7 +33,7 @@ public class MessageController {
 		return receivedMessageList;
 	}
 	
-	@GetMapping(path = "/messages/{receiver}")
+	@GetMapping(path = "messages/{receiver}")
 	public List<HashMap<String,Object>> receiveMessage(@PathVariable String receiver) {
 		//get request parameters
 		//fetch messages from database
@@ -42,7 +42,7 @@ public class MessageController {
 		return convertMessages(messageListForReceiver);
 	}
 	
-	@GetMapping(path = "/messages")
+	@GetMapping(path = "messages")
 	public List<MessageImplementation> retriveAllMessages() {
 		return service.getAllMessages();
 	}

@@ -15,22 +15,22 @@ public class OtpController {
 	@Autowired
 	private OtpDAOService otpService;
 	
-	@PostMapping(path = "requestOtp")
-	public void sendOTP(@RequestBody OtpImplementation userDetail) {
-		otpService.generateSaveAndSendOTP(userDetail.getContactNumber());
+	@PostMapping(path = "otps/request")
+	public void sendOTP(@RequestBody OtpImplementation otpDetails) {
+		otpService.generateSaveAndSendOTP(otpDetails.getContactNumber());
 	}
 	
-	@GetMapping(path = "requestOtp/{contactNumber}")
+	@GetMapping(path = "otps/{contactNumber}")
 	public Integer getOTP(@PathVariable String contactNumber) {
 		return otpService.getUserWithOtpPresent(contactNumber).getOtp();
 	}
 	
-	@GetMapping(path = "verifyOtp/{contactNumber}/{otp}")
-	public VerifyOtpResponse verifyOtp(@PathVariable String contactNumber, @PathVariable Integer otp) {
-		return otpService.verifyOTP(contactNumber, otp);
+	@PostMapping(path = "otps/verify")
+	public VerifyOtpResponse verifyOtp(@RequestBody OtpImplementation otpDetails) {
+		return otpService.verifyOTP(otpDetails.getContactNumber(), otpDetails.getOtp());
 	}
 	
-	@GetMapping(path = "/otps")
+	@GetMapping(path = "otps")
 	public List<OtpImplementation> getAllProfiles(){ 
 		return otpService.retreiveAll();
 	}

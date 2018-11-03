@@ -23,13 +23,13 @@ public class UserController {
 	@Autowired
 	private AuthTokenDAOService authservice;
 	
-	@PostMapping(path = "add-user")
+	@PostMapping(path = "users")
 	public void uploadProfile(@RequestBody UserImplementation user) {
 		userService.saveUsersProfile(user);
 		otpService.generateSaveAndSendOTP(user.getContactNumber());
 	}
 	
-	@PostMapping(path = "verify-user")
+	@PostMapping(path = "users/verify")
 	public VerifyOtpResponse verifyUser(@RequestBody OtpImplementation otpImplementation) {
 		VerifyOtpResponse verifyResult = otpService.verifyOTP(otpImplementation.getContactNumber(), otpImplementation.getOtp());
 		if(verifyResult.isVerified() == true) {
@@ -41,12 +41,12 @@ public class UserController {
 		//change isverifies value to true if isverifies is true(json response from verifyOtp())
 	}
 	
-	@GetMapping(path = "/users/{contactNumber}")
+	@GetMapping(path = "users/{contactNumber}")
 	public UserImplementation fetchUser(@PathVariable String contactNumber) {
 		return userService.fetchUserProfile(contactNumber);
 	}
 	
-	@GetMapping(path = "/users")
+	@GetMapping(path = "users")
 	public List<UserImplementation> fetchAllProfiles(){
 		return userService.getAllProfiles();
 	}
