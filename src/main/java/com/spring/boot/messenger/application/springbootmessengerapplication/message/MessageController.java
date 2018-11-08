@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.boot.messenger.application.springbootmessengerapplication.authtoken.AuthTokenDAOService;
@@ -21,10 +22,10 @@ public class MessageController {
 	private AuthTokenDAOService authservice;
 	
 	@PostMapping(path = "messages")
-	public void sendMessage(@RequestBody SendMessageRequest message) {
-		String authTokenFromServer = authservice.findAuthToken(message.getMessage().getSender());
-		if(message.getAuthToken().equals(authTokenFromServer)) {
-			service.addMessage(message.getMessage());
+	public void sendMessage(@RequestBody MessageImplementation message, @RequestHeader String authToken) {
+		String authTokenFromServer = authservice.findAuthToken(message.getSender());
+		if(authToken.equals(authTokenFromServer)) {
+			service.addMessage(message);
 		}
 		else {
 			throw new UnAuthorisedException();
@@ -42,8 +43,9 @@ public class MessageController {
 		return receivedMessageList;
 	}
 	
-	@GetMapping(path = "messages/{receiver}/{authToken}")
-	public List<HashMap<String,Object>> receiveMessage(@PathVariable String receiver, @PathVariable String authToken) {
+	@GetMapping(path = "messages/{receiver}")
+	public List<HashMap<String,Object>> receiveMessage(@PathVariable String receiver, @RequestHeader String authToken) {
+		System.out.println(authToken);
 		String authTokenFromServer = authservice.findAuthToken(receiver);
 		if(authToken.equals(authTokenFromServer)) {
 			List<MessageImplementation> messageListForReceiver = service.getMessagesForReceiver(receiver);

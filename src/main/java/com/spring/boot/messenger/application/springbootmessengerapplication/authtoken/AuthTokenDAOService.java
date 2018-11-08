@@ -25,16 +25,17 @@ public class AuthTokenDAOService extends JdbcDaoSupport{
 	}
 	
 	public String generateToken() {
-		SecureRandom random = new SecureRandom();
-		byte bytes[] = new byte[20];
-		random.nextBytes(bytes);
-		String token = "";
-		try {
-			token = new String(bytes, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-		return token;		
+		return "abcd";
+//		SecureRandom random = new SecureRandom();
+//		byte bytes[] = new byte[20];
+//		random.nextBytes(bytes);
+//		String token = "";
+//		try {
+//			token = new String(bytes, "UTF-8");
+//		} catch (UnsupportedEncodingException e) {
+//			e.printStackTrace();
+//		}
+//		return token;		
 	}
 	
 	public String findTokenExpiryTime() {
@@ -57,6 +58,7 @@ public class AuthTokenDAOService extends JdbcDaoSupport{
 	}
 	
 	public String findAuthToken(String contactnumber) {
+		System.out.println(contactnumber);
 		String sql = "select * from tokentable where contactnumber = ?";
 		Object[] params = new Object[] {contactnumber};
 		AuthTokenMapper mapper = new AuthTokenMapper();
