@@ -54,6 +54,13 @@ public class AuthTokenDAOService extends JdbcDaoSupport{
 		String expirytime = findTokenExpiryTime();
 		this.getJdbcTemplate().update(sql,contactnumber,authtoken,expirytime);
 		return authtoken;
-		
-	}	   
+	}
+	
+	public String findAuthToken(String contactnumber) {
+		String sql = "select * from tokentable where contactnumber = ?";
+		Object[] params = new Object[] {contactnumber};
+		AuthTokenMapper mapper = new AuthTokenMapper();
+		AuthTokenImplementation authToken = this.getJdbcTemplate().queryForObject(sql, params, mapper);
+		return authToken.getAuthToken();
+	}
 }
