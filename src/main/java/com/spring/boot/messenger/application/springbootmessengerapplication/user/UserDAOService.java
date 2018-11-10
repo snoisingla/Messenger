@@ -23,7 +23,7 @@ public class UserDAOService extends JdbcDaoSupport{
 	}
 	
 	public UserImplementation fetchUserProfile(String contactnumber) {
-		String sql = "select * from users us where us.contactnumber = ?";
+		String sql = "select * from users where contactnumber = ?";
 		Object[] params = new Object[] {contactnumber};
 		UserMapper mapper = new UserMapper();
 		try {

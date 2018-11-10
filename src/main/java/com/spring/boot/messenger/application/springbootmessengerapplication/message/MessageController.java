@@ -25,7 +25,7 @@ public class MessageController {
 	private UserDAOService userservice;
 	
 	@PostMapping(path = "messages")
-	public void sendMessage(@RequestBody MessageImplementation message, @RequestHeader String authToken) {
+	public void sendMessage(@RequestBody MessageRequest message, @RequestHeader String authToken) {
 		boolean isTokenValid = authservice.isTokenValid(authToken);
 		if(isTokenValid) {
 			service.addMessage(message);
@@ -35,11 +35,11 @@ public class MessageController {
 		}
 	}
 		
-	private List<HashMap<String,Object>> convertMessages(List<MessageImplementation> messages){
+	private List<HashMap<String,Object>> convertMessages(List<MessageRequest> messages){
 		List<HashMap<String,Object>> receivedMessageList = new ArrayList<>();
-		for(MessageImplementation currentMessage : messages) {
+		for(MessageRequest currentMessage : messages) {
 			HashMap<String,Object> map = new HashMap<>();
-			UserImplementation userDetails = userservice.fetchUserProfile(currentMessage.getSender());
+			UserImplementation userDetails = userservice.fetchUserProfile(currentMessage.getSender()); //TODO create separate Message class
 			map.put("sender", userDetails);
 			map.put("text",currentMessage.getText());
 			receivedMessageList.add(map);
@@ -53,7 +53,7 @@ public class MessageController {
 		if(isTokenValid) {
 			String receiver = authservice.findContactForAuthToken(authToken);
 			if(receiver != null){
-				List<MessageImplementation> messageListForReceiver = service.getMessagesForReceiver(receiver);
+				List<MessageRequest> messageListForReceiver = service.getMessagesForReceiver(receiver);
 				return convertMessages(messageListForReceiver);
 			}
 		}
@@ -62,7 +62,7 @@ public class MessageController {
 		
 	
 	@GetMapping(path = "allmessages")
-	public List<MessageImplementation> retriveAllMessages() {
+	public List<MessageRequest> retriveAllMessages() {
 		return service.getAllMessages();
 	}
 }

@@ -1,13 +1,13 @@
 package com.spring.boot.messenger.application.springbootmessengerapplication.message;
 
 
-public class MessageImplementation {
+public class MessageRequest {
 
 	private String sender;
 	private String receiver;
 	private String text;
 	
-	public MessageImplementation(String sender, String receiver, String text) {
+	public MessageRequest(String sender, String receiver, String text) {
 		this.sender = sender;
 		this.receiver = receiver;
 		this.text = text;

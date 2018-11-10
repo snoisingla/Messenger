@@ -5,15 +5,15 @@ import java.sql.SQLException;
 
 import org.springframework.jdbc.core.RowMapper;
 
-public class MessageMapper implements RowMapper<MessageImplementation>{
+public class MessageMapper implements RowMapper<MessageRequest>{
 	
 	@Override
-	public MessageImplementation mapRow(ResultSet rs, int rowNum) throws SQLException {
+	public MessageRequest mapRow(ResultSet rs, int rowNum) throws SQLException {
 		String sender = rs.getString("sender");
 		String receiver = rs.getString("receiver");
 		String text = rs.getString("text");
 		
-		return new MessageImplementation(sender,receiver,text);
+		return new MessageRequest(sender,receiver,text);
 	}
 
 }
