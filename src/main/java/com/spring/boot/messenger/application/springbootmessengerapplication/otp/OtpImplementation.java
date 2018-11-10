@@ -1,14 +1,20 @@
 package com.spring.boot.messenger.application.springbootmessengerapplication.otp;
 
+import java.sql.Timestamp;
+
 public class OtpImplementation {
 	private String contactNumber;
 	private Integer otp;
-	private String createdAt;
+	private Timestamp expiryTime;
 	
-	public OtpImplementation(String contactNumber, Integer otp, String createdAt) {
+	public OtpImplementation() {
+		super();
+	}
+
+	public OtpImplementation(String contactNumber, Integer otp, Timestamp expiryTime) {
 		this.otp = otp;
 		this.contactNumber = contactNumber;
-		this.createdAt = createdAt;
+		this.expiryTime = expiryTime;
 	}
 	
 	public Integer getOtp() {
@@ -19,13 +25,6 @@ public class OtpImplementation {
 		this.otp = otp;
 	}
 	
-	public String getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(String createdAt) {
-		this.createdAt = createdAt;
-	}
 
 	public String getContactNumber() {
 		return contactNumber;
@@ -33,6 +32,14 @@ public class OtpImplementation {
 	
 	public void setContactNumber(String contactNumber) {
 		this.contactNumber = contactNumber;
+	}
+
+	public Timestamp getExpiryTime() {
+		return expiryTime;
+	}
+
+	public void setExpiryTime(Timestamp expiryTime) {
+		this.expiryTime = expiryTime;
 	}
 	
 

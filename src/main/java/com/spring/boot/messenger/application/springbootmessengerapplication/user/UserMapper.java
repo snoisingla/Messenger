@@ -9,11 +9,10 @@ public class UserMapper implements RowMapper<UserImplementation>{
 
 	@Override
 	public UserImplementation mapRow(ResultSet rs, int rowNum) throws SQLException {
-		String name = rs.getString("name");
-		String photo = rs.getString("photo");
 		String contactnumber = rs.getString("contactnumber"); //values in "" are coloumn names from database
+		String name = rs.getString("name");
 		boolean verified = rs.getBoolean("isverified");
-		return new UserImplementation(name,photo,contactnumber,verified);
+		return new UserImplementation(contactnumber,name,verified);
 	}
 	
 }

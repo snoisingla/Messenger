@@ -6,16 +6,15 @@ import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import com.spring.boot.messenger.application.springbootmessengerapplication.user.UserNotFoundException;
-
 import java.util.*;
-
 import javax.sql.DataSource;
-
-import java.text.SimpleDateFormat;
+import java.sql.Timestamp;
 
 @Transactional
 @Repository
 public class OtpDAOService extends JdbcDaoSupport{
+	
+	private static int ExpiryDurationInMinutes = 1;
 	
 	@Autowired
 	public OtpDAOService(DataSource dataSource){
@@ -28,35 +27,24 @@ public class OtpDAOService extends JdbcDaoSupport{
 		return 1000 + new Random().nextInt(8999);
 	}
 	
-	private String getCurrentTime() {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm");
-		Calendar calendar = Calendar.getInstance();
-		return dateFormat.format(calendar.getTime());
+	public Timestamp findOtpExpiryTime(){
+		Timestamp ts = new Timestamp(System.currentTimeMillis());
+        Calendar cal = Calendar.getInstance();
+		cal.setTime(ts);
+		cal.add(Calendar.MINUTE, ExpiryDurationInMinutes);
+		return new Timestamp(cal.getTime().getTime());
 	}
 	
-	private boolean isValidOtp(String otpGeneratedTime) {		
-		 String currentTime = getCurrentTime();
-		 SimpleDateFormat format = new SimpleDateFormat("hh:mm");  
-			Date d1 = null;
-			Date d2 = null;
-			try {
-			    d1 = format.parse(otpGeneratedTime);
-			    d2 = format.parse(currentTime);
-			} catch (Exception e) {
-			    e.printStackTrace();
-			}    
-			long diff = d2.getTime() - d1.getTime();
-			long diffMinutes = diff / (60 * 1000);
-			//long diffHours = diff / (60 * 60 * 1000); 
-			
-			if(diffMinutes >= 5) {
-				return false;
-			}
-			return true;
+	public boolean isOtpExpired(Timestamp expiredTime){
+		Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+		if(expiredTime.after(currentTime)){ //expired > current
+			return false;
+		}
+		return true; //expired
 	}
 	
 	public OtpImplementation getUserWithOtpPresent(String contactnumber) {
-		String sql = "select ot.contactnumber, ot.otp, ot.createdat from otptable ot where ot.contactnumber = ?";
+		String sql = "select * from otp where contactnumber = ?";
 		Object[] params = new Object[] {contactnumber};
 		OtpMapper mapper = new OtpMapper();				
 		try {
@@ -69,15 +57,15 @@ public class OtpDAOService extends JdbcDaoSupport{
 	}
 	
 	public void generateSaveAndSendOTP(String contactNumber) {
-		String currentTime = getCurrentTime();		
+		Timestamp newExpiryTimestamp = findOtpExpiryTime();
 		OtpImplementation otpImpl = getUserWithOtpPresent(contactNumber);
 		if (otpImpl == null) { //no otp found, add new entry : new user
 			Integer otp = generateOTP();
-			String sql = "insert into otptable values(?,?,?)";
-			this.getJdbcTemplate().update(sql,contactNumber,otp,currentTime);
-		} else if (!isValidOtp(otpImpl.getCreatedAt())) { //otp got expired
+			String sql = "insert into otp values(?,?,?)";
+			this.getJdbcTemplate().update(sql,contactNumber,otp,newExpiryTimestamp);
+		} else if (isOtpExpired(otpImpl.getExpiryTime())) { //otp got expired
 			Integer otp = generateOTP();
-			otpImpl.setCreatedAt(currentTime);
+			otpImpl.setExpiryTime(newExpiryTimestamp);
 			otpImpl.setOtp(otp);
 		}
 		sendOTPViaSMS(contactNumber,otpImpl);
@@ -88,7 +76,7 @@ public class OtpDAOService extends JdbcDaoSupport{
 	}
 	
 	public VerifyOtpResponse verifyOTP(String contactnumber, Integer otp) {
-		String sql = "select ot.contactnumber, ot.otp, ot.createdat from otptable ot where ot.contactnumber = ?";
+		String sql = "select * from otp where contactnumber = ?";
 		Object[] params = new Object[] {contactnumber};
 		OtpMapper mapper = new OtpMapper();
 		try {
@@ -96,7 +84,7 @@ public class OtpDAOService extends JdbcDaoSupport{
 			if(!otpTable.getOtp().equals(otp)) {
 				return new VerifyOtpResponse(false,false); //wrong otp
 			}
-			else if(!isValidOtp(otpTable.getCreatedAt())) {
+			else if(isOtpExpired(otpTable.getExpiryTime())) {
 				return new VerifyOtpResponse(true,false); //expired otp
 			}
 			return new VerifyOtpResponse(false,true); //correct otp
@@ -108,7 +96,7 @@ public class OtpDAOService extends JdbcDaoSupport{
 	}	
 	
 	public List<OtpImplementation> retreiveAll(){
-		String sql = "select * from otptable";
+		String sql = "select * from otp";
 		Object[] params = new Object[] {};
 		OtpMapper mapper = new OtpMapper();
 		List<OtpImplementation> otpTable = this.getJdbcTemplate().query(sql, params, mapper);
@@ -120,6 +108,33 @@ public class OtpDAOService extends JdbcDaoSupport{
 		}
 	}
 }
+
+//private boolean isValidOtp(String otpGeneratedTime) {		
+//String currentTime = getCurrentTime();
+//SimpleDateFormat format = new SimpleDateFormat("hh:mm");  
+//	Date d1 = null;
+//	Date d2 = null;
+//	try {
+//	    d1 = format.parse(otpGeneratedTime);
+//	    d2 = format.parse(currentTime);
+//	} catch (Exception e) {
+//	    e.printStackTrace();
+//	}    
+//	long diff = d2.getTime() - d1.getTime();
+//	long diffMinutes = diff / (60 * 1000);
+//	//long diffHours = diff / (60 * 60 * 1000); 
+//	
+//	if(diffMinutes >= 5) {
+//		return false;
+//	}
+//	return true;
+//}
+
+//private String getCurrentTime() {
+//	SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm");
+//	Calendar calendar = Calendar.getInstance();
+//	return dateFormat.format(calendar.getTime());
+//}
 
 /*	client shows enter phone number and send otp screen
 user enter phone number and click on send otp

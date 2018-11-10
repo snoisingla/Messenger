@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class UnAuthorisedException extends RuntimeException {
 	
 	public UnAuthorisedException() {
-		super("AuthToken match error");
+		super("AuthToken match error or Token got expired");
 	}
 
 }

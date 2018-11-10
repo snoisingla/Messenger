@@ -17,7 +17,7 @@ public class MessageDAOService extends JdbcDaoSupport{
 	}
 	
 	public List<MessageImplementation> getAllMessages(){
-		String sql = "select msg.sender, msg.receiver, msg.text from messagetable msg";
+		String sql = "select * from message";
 		Object[] params = new Object[] {};
 		MessageMapper mapper = new MessageMapper();		
 		List<MessageImplementation> messageTable = this.getJdbcTemplate().query(sql, params, mapper);
@@ -26,7 +26,7 @@ public class MessageDAOService extends JdbcDaoSupport{
 	}
 	
 	public List<MessageImplementation> getMessagesForReceiver(String receiver){	
-		String sql = "select msg.sender, msg.receiver, msg.text from messagetable msg where msg.receiver = ?";
+		String sql = "select * from message where receiver = ?";
 		Object[] params = new Object[] {receiver};
 		MessageMapper mapper = new MessageMapper();
 		List<MessageImplementation> messageTable = this.getJdbcTemplate().query(sql, params, mapper);
@@ -38,7 +38,7 @@ public class MessageDAOService extends JdbcDaoSupport{
 	
 	
 	public void addMessage(MessageImplementation message) {
-		String sql = "insert into messagetable values(?,?,?)";
+		String sql = "insert into message values(?,?,?)";
 		String sender = message.getSender();
 		String receiver = message.getReceiver();
 		String text = message.getText();

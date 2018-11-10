@@ -1,10 +1,9 @@
 package com.spring.boot.messenger.application.springbootmessengerapplication.user;
 
 public class UserImplementation {
-
-	private String name;
-	private String photo;
+	
 	private String contactNumber;
+	private String name;
 	private boolean verified;
 	
 	
@@ -12,33 +11,11 @@ public class UserImplementation {
 		super();
 	}
 
-	public UserImplementation(String name, String photo, String contactNumber) {
-		this.name = name;
-		this.photo = photo;
+	public UserImplementation(String contactNumber, String name, boolean verified) {
+		super();
 		this.contactNumber = contactNumber;
-	}
-	
-	public UserImplementation(String name, String photo, String contactNumber, boolean verified) {
 		this.name = name;
-		this.photo = photo;
-		this.contactNumber = contactNumber;
 		this.verified = verified;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getPhoto() {
-		return photo;
-	}
-
-	public void setPhoto(String photo) {
-		this.photo = photo;
 	}
 
 	public String getContactNumber() {
@@ -49,6 +26,14 @@ public class UserImplementation {
 		this.contactNumber = contactNumber;
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public boolean isVerified() {
 		return verified;
 	}
@@ -56,6 +41,4 @@ public class UserImplementation {
 	public void setVerified(boolean verified) {
 		this.verified = verified;
 	}
-	
-	
 }

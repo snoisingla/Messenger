@@ -1,11 +1,13 @@
 package com.spring.boot.messenger.application.springbootmessengerapplication.authtoken;
 
+import java.sql.Timestamp;
+
 public class AuthTokenImplementation {
 	private String contactNumber;
 	private String authToken;
-	private String expiryTime;
+	private Timestamp expiryTime;
 	
-	public AuthTokenImplementation(String contactNumber, String authToken, String expiryTime) {
+	public AuthTokenImplementation(String contactNumber, String authToken, Timestamp expiryTime) {
 		super();
 		this.contactNumber = contactNumber;
 		this.authToken = authToken;
@@ -28,11 +30,11 @@ public class AuthTokenImplementation {
 		this.authToken = authToken;
 	}
 
-	public String getExpiryTime() {
+	public Timestamp getExpiryTime() {
 		return expiryTime;
 	}
 
-	public void setExpiryTime(String expiryTime) {
+	public void setExpiryTime(Timestamp expiryTime) {
 		this.expiryTime = expiryTime;
 	}
 }

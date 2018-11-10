@@ -16,15 +16,14 @@ public class UserDAOService extends JdbcDaoSupport{
 	}
 		
 	public void saveUsersProfile(UserImplementation user) {
-		String sql = "insert into usertable(name,photo,contactnumber) values(?,?,?)";
+		String sql = "insert into users values(?,?)";
 		String name = user.getName();
-		String photo = user.getPhoto();
 		String contactnumber = user.getContactNumber();
-		this.getJdbcTemplate().update(sql,name,photo,contactnumber);
+		this.getJdbcTemplate().update(sql,contactnumber,name);
 	}
 	
 	public UserImplementation fetchUserProfile(String contactnumber) {
-		String sql = "select * from usertable us where us.contactnumber = ?";
+		String sql = "select * from users us where us.contactnumber = ?";
 		Object[] params = new Object[] {contactnumber};
 		UserMapper mapper = new UserMapper();
 		try {
@@ -37,7 +36,7 @@ public class UserDAOService extends JdbcDaoSupport{
 	}	
 	
 	public List<UserImplementation> getAllProfiles(){
-		String sql = "select * from usertable";
+		String sql = "select * from users";
 		Object[] params = new Object[] {};
 		UserMapper mapper = new UserMapper();
 		List<UserImplementation> userTable = this.getJdbcTemplate().query(sql, params, mapper);	
@@ -45,7 +44,7 @@ public class UserDAOService extends JdbcDaoSupport{
 	}
 	
 	public void updateUser(String contactNumber) {
-		String sql = "update usertable set isverified = ? where contactnumber = ?";
+		String sql = "update users set isverified = ? where contactnumber = ?";
 		this.getJdbcTemplate().update(sql,true,contactNumber);		
 	}
 	//otp : verb end point name

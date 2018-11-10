@@ -2,6 +2,7 @@ package com.spring.boot.messenger.application.springbootmessengerapplication.use
 
 import java.util.List;
 import com.spring.boot.messenger.application.springbootmessengerapplication.authtoken.AuthTokenDAOService;
+import com.spring.boot.messenger.application.springbootmessengerapplication.message.UnAuthorisedException;
 import com.spring.boot.messenger.application.springbootmessengerapplication.otp.OtpDAOService;
 import com.spring.boot.messenger.application.springbootmessengerapplication.otp.OtpImplementation;
 import com.spring.boot.messenger.application.springbootmessengerapplication.otp.VerifyOtpResponse;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -38,15 +40,20 @@ public class UserController {
 			verifyResult.setAuthToken(token);
 		}
 		return verifyResult;
-		//change isverifies value to true if isverifies is true(json response from verifyOtp())
 	}
 	
-	@GetMapping(path = "users/{contactNumber}")
-	public UserImplementation fetchUser(@PathVariable String contactNumber) {
-		return userService.fetchUserProfile(contactNumber);
+	@GetMapping(path = "users/{profileContactNumber}")
+	public UserImplementation fetchUser(@PathVariable String profileContactNumber, @RequestHeader String authToken) {
+		boolean isTokenValid = authservice.isTokenValid(authToken);
+		if(isTokenValid) {
+			return userService.fetchUserProfile(profileContactNumber); 
+		}
+		else {
+			throw new UnAuthorisedException();
+		}
 	}
 	
-	@GetMapping(path = "users")
+	@GetMapping(path = "allusers")
 	public List<UserImplementation> fetchAllProfiles(){
 		return userService.getAllProfiles();
 	}
