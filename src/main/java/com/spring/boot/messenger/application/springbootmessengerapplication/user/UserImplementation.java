@@ -1,9 +1,13 @@
 package com.spring.boot.messenger.application.springbootmessengerapplication.user;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class UserImplementation {
 	
 	private String contactNumber;
 	private String name;
+	
+	@JsonIgnore
 	private boolean verified;
 	
 	

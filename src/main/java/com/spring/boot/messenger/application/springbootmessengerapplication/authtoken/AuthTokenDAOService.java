@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class AuthTokenDAOService extends JdbcDaoSupport{
 	
-	private static int ExpiryDuration = 3;
+	private static int ExpiryDurationInDays = 1;
 	
 	@Autowired
 	public AuthTokenDAOService(DataSource dataSource) {
@@ -27,14 +27,14 @@ public class AuthTokenDAOService extends JdbcDaoSupport{
 	    SecureRandom secureRandom = new SecureRandom();
 	    byte[] token = new byte[16];
 	    secureRandom.nextBytes(token);
-	    return new BigInteger(1, token).toString(16); //hex encoding
+	    return new BigInteger(1, token).toString(16); //hex encoding, for binary 2, for integers 10
 	}
 	
 	public Timestamp findTokenExpiryTime(){
 		Timestamp ts = new Timestamp(System.currentTimeMillis());
         Calendar cal = Calendar.getInstance();
 		cal.setTime(ts);
-		cal.add(Calendar.MINUTE, ExpiryDuration);
+		cal.add(Calendar.DAY_OF_WEEK, ExpiryDurationInDays);
 		return new Timestamp(cal.getTime().getTime());
 	}
 	
@@ -55,19 +55,19 @@ public class AuthTokenDAOService extends JdbcDaoSupport{
 		return authtoken;
 	}
 		
-	public String findAuthToken(String contactnumber) { //may have to delete this method
-		System.out.println(contactnumber);
-		String sql = "select * from token where contactnumber = ?";
-		Object[] params = new Object[] {contactnumber};
-		AuthTokenMapper mapper = new AuthTokenMapper();
-		try {
-			AuthTokenImplementation authToken = this.getJdbcTemplate().queryForObject(sql, params, mapper);
-			return authToken.getAuthToken();
-		}
-		catch (EmptyResultDataAccessException e){
-			return null;
-		}
-	}
+//	public String findAuthToken(String contactnumber) { //may have to delete this method
+//		System.out.println(contactnumber);
+//		String sql = "select * from token where contactnumber = ?";
+//		Object[] params = new Object[] {contactnumber};
+//		AuthTokenMapper mapper = new AuthTokenMapper();
+//		try {
+//			AuthTokenImplementation authToken = this.getJdbcTemplate().queryForObject(sql, params, mapper);
+//			return authToken.getAuthToken();
+//		}
+//		catch (EmptyResultDataAccessException e){
+//			return null;
+//		}
+//	}
 	
 	public String findContactForAuthToken(String authToken) {
 		String sql = "select * from token where authtoken = ?";
@@ -83,6 +83,7 @@ public class AuthTokenDAOService extends JdbcDaoSupport{
 	}
 	
 	public boolean isTokenValid(String authToken) {
+		//return true;
 		String sql = "select * from token where authtoken = ?";
 		Object[] params = new Object[] {authToken};
 		AuthTokenMapper mapper = new AuthTokenMapper();

@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 @Repository
 public class OtpDAOService extends JdbcDaoSupport{
 	
-	private static int ExpiryDurationInMinutes = 1;
+	private static int ExpiryDurationInMinutes = 5;
 	
 	@Autowired
 	public OtpDAOService(DataSource dataSource){

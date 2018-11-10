@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.boot.messenger.application.springbootmessengerapplication.authtoken.AuthTokenDAOService;
+import com.spring.boot.messenger.application.springbootmessengerapplication.user.UserDAOService;
+import com.spring.boot.messenger.application.springbootmessengerapplication.user.UserImplementation;
 
 @RestController
 public class MessageController {
@@ -18,6 +20,9 @@ public class MessageController {
 	
 	@Autowired
 	private AuthTokenDAOService authservice;
+	
+	@Autowired
+	private UserDAOService userservice;
 	
 	@PostMapping(path = "messages")
 	public void sendMessage(@RequestBody MessageImplementation message, @RequestHeader String authToken) {
@@ -33,16 +38,17 @@ public class MessageController {
 	private List<HashMap<String,Object>> convertMessages(List<MessageImplementation> messages){
 		List<HashMap<String,Object>> receivedMessageList = new ArrayList<>();
 		for(MessageImplementation currentMessage : messages) {
-			HashMap<String,Object> map = new HashMap<>();			
-				map.put("sender",currentMessage.getSender());
-				map.put("text",currentMessage.getText());
-				receivedMessageList.add(map);
+			HashMap<String,Object> map = new HashMap<>();
+			UserImplementation userDetails = userservice.fetchUserProfile(currentMessage.getSender());
+			map.put("sender", userDetails);
+			map.put("text",currentMessage.getText());
+			receivedMessageList.add(map);
 		}
 		return receivedMessageList;
 	}
 	
 	@GetMapping(path = "messages")
-	public List<HashMap<String,Object>> receiveMessage(@RequestHeader String authToken) {
+	public List<HashMap<String, Object>> receiveMessage(@RequestHeader String authToken) {
 		boolean isTokenValid = authservice.isTokenValid(authToken);
 		if(isTokenValid) {
 			String receiver = authservice.findContactForAuthToken(authToken);
