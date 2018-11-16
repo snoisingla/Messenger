@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class AuthTokenDAOService extends JdbcDaoSupport{
 	
-	private static int ExpiryDurationInDays = 1;
+	private static int ExpiryDurationInDays = 7;
 	
 	@Autowired
 	public AuthTokenDAOService(DataSource dataSource) {

@@ -9,6 +9,7 @@ public class MessageMapper implements RowMapper<MessageRequest>{
 	
 	@Override
 	public MessageRequest mapRow(ResultSet rs, int rowNum) throws SQLException {
+		//int id = rs.getInt("id");
 		String sender = rs.getString("sender");
 		String receiver = rs.getString("receiver");
 		String text = rs.getString("text");

@@ -9,5 +9,9 @@ public class UnAuthorisedException extends RuntimeException {
 	public UnAuthorisedException() {
 		super("AuthToken match error or Token got expired");
 	}
+	
+	public UnAuthorisedException(String message) {
+		super(message);
+	}
 
 }

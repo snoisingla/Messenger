@@ -2,15 +2,32 @@ package com.spring.boot.messenger.application.springbootmessengerapplication.mes
 
 
 public class MessageRequest {
-
+	
+	private int id;
 	private String sender;
 	private String receiver;
 	private String text;
 	
-	public MessageRequest(String sender, String receiver, String text) {
+	
+	
+public MessageRequest(String sender, String receiver, String text) {
+		super();
 		this.sender = sender;
 		this.receiver = receiver;
 		this.text = text;
+	}
+//	public MessageRequest(int id, String sender, String receiver, String text) {
+//		this.id = id;
+//		this.sender = sender;
+//		this.receiver = receiver;
+//		this.text = text;
+//	}
+	
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
 	}
 	public String getSender() {
 		return sender;
