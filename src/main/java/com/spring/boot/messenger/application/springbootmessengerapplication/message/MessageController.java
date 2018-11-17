@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -84,8 +85,8 @@ public class MessageController {
 	public void deleteMessageById(@PathVariable int id, @RequestHeader String authToken) {
 		boolean isTokenValid = authservice.isTokenValid(authToken);
 		if(isTokenValid) {
-			MessageRequest message = messageservice.getMessageFromId(id);
 			String messageSender = authservice.findContactForAuthToken(authToken);
+			MessageRequest message = messageservice.getMessageFromId(id);
 			if(message.getSender().equals(messageSender)){
 				messageservice.deleteMessage(id);
 				return;
@@ -94,14 +95,23 @@ public class MessageController {
 		throw new UnAuthorisedException("No message found with this id");
 	}
 	
-	@PostMapping(path = "messages/edit")
-	public void editMessage(@RequestBody MessageRequest message) {
-		messageservice.editMessage(message.getText(), message.getId());
+	@PutMapping(path = "messages/{id}")
+	public void editMessage(@RequestBody MessageRequest message, @PathVariable int id, @RequestHeader String authToken) {
+		boolean isTokenValid = authservice.isTokenValid(authToken);
+		if(isTokenValid) {
+			String contactForToken = authservice.findContactForAuthToken(authToken);
+			String messageSender =	messageservice.getMessageFromId(id).getSender();
+			if(contactForToken.equals(messageSender)){
+				messageservice.editMessage(message.getText(), id);
+				return;
+			}
+		}
+		throw new UnAuthorisedException();
 	}
 	
 	@GetMapping(path = "allmessages")
-	public List<MessageRequest> retriveAllMessages(@RequestParam(value = "page_num", required = false, defaultValue = "1") Integer page_num,
-												@RequestParam(value = "page_size", required = false, defaultValue = "3") Integer page_size) {
+	public List<MessageRequest> retriveAllMessages(@RequestParam(value = "page_num", required = false, defaultValue = "1") int page_num,
+												@RequestParam(value = "page_size", required = false, defaultValue = "3") int page_size) {
 		List<MessageRequest> messages = messageservice.getAllMessages(page_num,page_size);
 		return messages;
 	}

@@ -31,7 +31,7 @@ public class UserDAOService extends JdbcDaoSupport{
 			return userTable;
 		}
 		catch (EmptyResultDataAccessException e) {
-			throw new UserNotFoundException("User with "+contactnumber+ " not found ");
+			throw new ResourceNotFoundException("User with "+contactnumber+ " not found ");
 		}
 	}	
 	

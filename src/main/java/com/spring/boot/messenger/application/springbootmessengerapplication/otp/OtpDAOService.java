@@ -5,7 +5,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import com.spring.boot.messenger.application.springbootmessengerapplication.user.UserNotFoundException;
+import com.spring.boot.messenger.application.springbootmessengerapplication.user.ResourceNotFoundException;
 import java.util.*;
 import javax.sql.DataSource;
 import java.sql.Timestamp;
@@ -104,7 +104,7 @@ public class OtpDAOService extends JdbcDaoSupport{
 			return otpTable;
 		}
 		else {
-			throw new UserNotFoundException("No users found");
+			throw new ResourceNotFoundException("No users found");
 		}
 	}
 }
