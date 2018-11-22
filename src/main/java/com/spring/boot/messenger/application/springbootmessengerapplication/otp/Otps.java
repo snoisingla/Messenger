@@ -2,16 +2,24 @@ package com.spring.boot.messenger.application.springbootmessengerapplication.otp
 
 import java.sql.Timestamp;
 
-public class OtpImplementation {
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+@Entity
+public class Otps {
+	
+	@Id
+	@Column(name = "contact_number", nullable = false)
 	private String contactNumber;
 	private Integer otp;
 	private Timestamp expiryTime;
 	
-	public OtpImplementation() {
-		super();
+	protected Otps() {
+		
 	}
 
-	public OtpImplementation(String contactNumber, Integer otp, Timestamp expiryTime) {
+	public Otps(String contactNumber, Integer otp, Timestamp expiryTime) {
 		this.otp = otp;
 		this.contactNumber = contactNumber;
 		this.expiryTime = expiryTime;

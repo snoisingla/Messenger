@@ -2,12 +2,26 @@ package com.spring.boot.messenger.application.springbootmessengerapplication.aut
 
 import java.sql.Timestamp;
 
-public class AuthTokenImplementation {
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+@Entity
+public class Tokens {
+	
+	@Id
+	@Column(name = "contact_number", nullable = false)
 	private String contactNumber;
+	
 	private String authToken;
 	private Timestamp expiryTime;
 	
-	public AuthTokenImplementation(String contactNumber, String authToken, Timestamp expiryTime) {
+	protected Tokens() {
+		
+	}
+	
+	public Tokens(String contactNumber, String authToken, Timestamp expiryTime) {
 		super();
 		this.contactNumber = contactNumber;
 		this.authToken = authToken;

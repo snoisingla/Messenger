@@ -1,25 +1,21 @@
 package com.spring.boot.messenger.application.springbootmessengerapplication.otp;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import com.spring.boot.messenger.application.springbootmessengerapplication.user.ResourceNotFoundException;
 import java.util.*;
-import javax.sql.DataSource;
 import java.sql.Timestamp;
 
+@Service
 @Transactional
 @Repository
-public class OtpDAOService extends JdbcDaoSupport{
+public class OtpServiceImpl{
 	
 	private static int ExpiryDurationInMinutes = 5;
 	
 	@Autowired
-	public OtpDAOService(DataSource dataSource){
-		this.setDataSource(dataSource);
-	}
+	private OtpRepository otpService;
 	
 	VerifyOtpResponse verifyOtpResponse;
 	
@@ -43,26 +39,18 @@ public class OtpDAOService extends JdbcDaoSupport{
 		return true; //expired
 	}
 	
-	public OtpImplementation getUserWithOtpPresent(String contactnumber) {
-		String sql = "select * from otp where contactnumber = ?";
-		Object[] params = new Object[] {contactnumber};
-		OtpMapper mapper = new OtpMapper();				
-		try {
-			OtpImplementation otpTable = this.getJdbcTemplate().queryForObject(sql, params, mapper);
-			return otpTable;
-		}
-		catch (EmptyResultDataAccessException e) {
-			return null;
-		}		
+	public Otps getUserWithOtpPresent(String contactnumber) {
+		Optional<Otps> otp = otpService.findById(contactnumber);
+		return (!otp.isPresent()) ? null : otp.get();		
 	}
 	
 	public void generateSaveAndSendOTP(String contactNumber) {
 		Timestamp newExpiryTimestamp = findOtpExpiryTime();
-		OtpImplementation otpImpl = getUserWithOtpPresent(contactNumber);
+		Otps otpImpl = getUserWithOtpPresent(contactNumber);
 		if (otpImpl == null) { //no otp found, add new entry : new user
 			Integer otp = generateOTP();
-			String sql = "insert into otp values(?,?,?)";
-			this.getJdbcTemplate().update(sql,contactNumber,otp,newExpiryTimestamp);
+			Otps otpValues = new Otps(contactNumber,otp,newExpiryTimestamp);
+			otpService.save(otpValues);
 		} else if (isOtpExpired(otpImpl.getExpiryTime())) { //otp got expired
 			Integer otp = generateOTP();
 			otpImpl.setExpiryTime(newExpiryTimestamp);
@@ -71,41 +59,28 @@ public class OtpDAOService extends JdbcDaoSupport{
 		sendOTPViaSMS(contactNumber,otpImpl);
 	}
 	
-	private void sendOTPViaSMS(String contactNumber, OtpImplementation otp) {
+	private void sendOTPViaSMS(String contactNumber, Otps otp) {
 		// TODO Auto-generated method stub
 	}
 	
 	public VerifyOtpResponse verifyOTP(String contactnumber, Integer otp) {
-		String sql = "select * from otp where contactnumber = ?";
-		Object[] params = new Object[] {contactnumber};
-		OtpMapper mapper = new OtpMapper();
-		try {
-			OtpImplementation otpTable = this.getJdbcTemplate().queryForObject(sql, params, mapper);
-			if(!otpTable.getOtp().equals(otp)) {
+		Optional<Otps> otpValue = otpService.findById(contactnumber);
+		if(!otpValue.isPresent()) {
+			return null;
+		}
+		else {
+			if(!otpValue.get().getOtp().equals(otp)) {
 				return new VerifyOtpResponse(false,false); //wrong otp
 			}
-			else if(isOtpExpired(otpTable.getExpiryTime())) {
+			else if(isOtpExpired(otpValue.get().getExpiryTime())) {
 				return new VerifyOtpResponse(true,false); //expired otp
 			}
 			return new VerifyOtpResponse(false,true); //correct otp
 		}
-		
-		catch(EmptyResultDataAccessException e) {
-			return null; //no user found with this contact
-		}
 	}	
 	
-	public List<OtpImplementation> retreiveAll(){
-		String sql = "select * from otp";
-		Object[] params = new Object[] {};
-		OtpMapper mapper = new OtpMapper();
-		List<OtpImplementation> otpTable = this.getJdbcTemplate().query(sql, params, mapper);
-		if(otpTable.size() >= 1) {	
-			return otpTable;
-		}
-		else {
-			throw new ResourceNotFoundException("No users found");
-		}
+	public List<Otps> retreiveAll(){
+		return otpService.findAll();
 	}
 }
 

@@ -11,8 +11,8 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import com.spring.boot.messenger.application.springbootmessengerapplication.user.UserImplementation;
-import com.spring.boot.messenger.application.springbootmessengerapplication.user.UserMapper;
+import com.spring.boot.messenger.application.springbootmessengerapplication.user.Users;
+import com.spring.boot.messenger.application.springbootmessengerapplication.user.Users;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -27,7 +27,7 @@ public class UserMapperTests {
 		when(test.getBoolean("isverified")).thenReturn(true);
 		
 		UserMapper mapper = new UserMapper();
-		UserImplementation userResult = mapper.mapRow(test, 2);
+		Users userResult = mapper.mapRow(test, 2);
 		assertEquals(userResult.getName(), "snoi");
 		assertEquals(userResult.getContactNumber(),"9873477561");
 		assertEquals(userResult.isVerified(),true);

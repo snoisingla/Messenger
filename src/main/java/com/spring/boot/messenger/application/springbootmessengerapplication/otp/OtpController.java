@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class OtpController {
 	
 	@Autowired
-	private OtpDAOService otpService;
+	private OtpServiceImpl otpService;
 	
 	@PostMapping(path = "otps/request")
-	public void sendOTP(@RequestBody OtpImplementation otpDetails) {
+	public void sendOTP(@RequestBody Otps otpDetails) {
 		otpService.generateSaveAndSendOTP(otpDetails.getContactNumber());
 	}
 	
@@ -26,12 +26,12 @@ public class OtpController {
 	}
 	
 	@PostMapping(path = "otps/verify")
-	public VerifyOtpResponse verifyOtp(@RequestBody OtpImplementation otpDetails) {
+	public VerifyOtpResponse verifyOtp(@RequestBody Otps otpDetails) {
 		return otpService.verifyOTP(otpDetails.getContactNumber(), otpDetails.getOtp());
 	}
 	
 	@GetMapping(path = "otps")
-	public List<OtpImplementation> getAllProfiles(){ 
+	public List<Otps> getAllOtps(){ 
 		return otpService.retreiveAll();
 	}
 }
