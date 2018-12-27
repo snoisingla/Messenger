@@ -2,6 +2,7 @@ package com.spring.boot.messenger.application.springbootmessengerapplication.mes
 
 import javax.persistence.*;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.spring.boot.messenger.application.springbootmessengerapplication.user.Users;
 
 @Entity
@@ -9,6 +10,7 @@ public class Messages {
 	
 	@Id
 	@GeneratedValue
+	@JsonIgnore
 	private long id;
 	
 	private String text;
@@ -17,7 +19,7 @@ public class Messages {
 	private Users sender;
 	
 	@ManyToOne
-	private Users receiver;
+	private Users receiver;	
 	
 	protected Messages() {
 		
@@ -61,6 +63,5 @@ public class Messages {
 	public void setReceiver(Users receiver) {
 		this.receiver = receiver;
 	}
-
 
 }

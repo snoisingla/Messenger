@@ -1,12 +1,26 @@
 package com.spring.boot.messenger.application.springbootmessengerapplication.user;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceException;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Repository
@@ -16,7 +30,62 @@ public class UserServiceImpl {
 	@Autowired
 	private UserRepository userService;
 	
-	public void saveUsersProfile(Users user) {
+	private Path fileStorageLocation = Paths.get("./uploads");
+	
+	@Autowired
+	private EntityManager entityManager;
+	
+	public String storeImageAndReturnFileName(MultipartFile file) {
+		String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+		try {
+			Path targetLocation = this.fileStorageLocation.resolve(fileName);
+			Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+			return fileName;
+		} catch (IOException e) {
+			return "Could not store file " + fileName + ". Please try again!" ;
+		}		
+	}
+	
+	public Resource loadFileAsResource(String fileName) {
+		Path fileLocation = this.fileStorageLocation.resolve(fileName);
+		try {
+			Resource resource = new UrlResource(fileLocation.toUri());
+			if(resource.exists()) {
+				return resource;
+			}
+			else {
+				return null;
+			}
+		} catch (MalformedURLException e) {
+			return null;
+		}
+		
+	}
+	
+	public String saveUsersProfile(Users user) {
+		boolean isExists = userService.existsById(user.getContactNumber());
+		return (isExists) ? null : userService.save(user).getContactNumber();
+	}
+	
+	public boolean isUserExist(String contactNumber) {
+		return userService.existsById(contactNumber);
+	}
+	
+	
+	public void saveUsersProfile1(Users user) {
+		try {
+			entityManager.persist(user);
+			entityManager.flush();
+		}
+		catch(PersistenceException e) {
+			System.out.println("User already exists");
+		}
+		//userService.save(user);
+	}
+	
+	public void saveUserImage(String contactNumber, String imageDownloadUrl) {
+		Users user = userService.findById(contactNumber).get();
+		user.setImageDownloadUrl(imageDownloadUrl);
 		userService.save(user);
 	}
 	

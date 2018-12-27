@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.spring.boot.messenger.application.springbootmessengerapplication.message.Messages;
@@ -17,6 +18,7 @@ public class Users {
 	@Column(name = "contact_number", nullable = false)
 	private String contactNumber;
 	
+	@NotNull 
 	private String name;
 	
 	@JsonIgnore
@@ -30,6 +32,16 @@ public class Users {
 	@JsonIgnore
 	private List<Messages> receivedMessages;
 	
+	private String imageDownloadUrl;
+	
+	protected Users() {
+	}
+	
+	public Users(String contactNumber, String name, String imageDownloadUrl) {
+		this.contactNumber = contactNumber;
+		this.name = name;
+		this.imageDownloadUrl = imageDownloadUrl;
+	}
 	
 	public List<Messages> getSentMessages() {
 		return sentMessages;
@@ -45,22 +57,6 @@ public class Users {
 
 	public void setReceivedMessages(List<Messages> receivedMessages) {
 		this.receivedMessages = receivedMessages;
-	}
-
-	protected Users() {
-	}
-	
-	public Users(String contactNumber, String name) {
-		super();
-		this.contactNumber = contactNumber;
-		this.name = name;
-	}
-
-	public Users(String contactNumber, String name, boolean verified) {
-		super();
-		this.contactNumber = contactNumber;
-		this.name = name;
-		this.verified = verified;
 	}
 
 	public String getContactNumber() {
@@ -85,6 +81,14 @@ public class Users {
 
 	public void setVerified(boolean verified) {
 		this.verified = verified;
+	}
+
+	public String getImageDownloadUrl() {
+		return imageDownloadUrl;
+	}
+
+	public void setImageDownloadUrl(String imageDownloadUrl) {
+		this.imageDownloadUrl = imageDownloadUrl;
 	}
 	
 //	@Override

@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthTokenServiceImpl{
 	
 	private static int ExpiryDurationInDays = 7;
+	private static int ExpiryDurationInMinutes = 5;
 	
 	@Autowired
 	private AuthTokenRepository tokenService;
@@ -31,6 +32,7 @@ public class AuthTokenServiceImpl{
         Calendar cal = Calendar.getInstance();
 		cal.setTime(ts);
 		cal.add(Calendar.DAY_OF_WEEK, ExpiryDurationInDays);
+		//cal.add(Calendar.MINUTE, ExpiryDurationInMinutes);
 		return new Timestamp(cal.getTime().getTime());
 	}
 	
@@ -43,8 +45,8 @@ public class AuthTokenServiceImpl{
 	}
 	
 	public String findContactForAuthToken(String authToken) {
-		String contact = tokenService.findByAuthToken(authToken).getContactNumber();
-		return (contact != null) ? tokenService.findByAuthToken(authToken).getContactNumber() : null;
+		return tokenService.findByAuthToken(authToken).getContactNumber();
+		//return (contact != null) ? tokenService.findByAuthToken(authToken).getContactNumber() : null;
 	}
 	
 	public boolean isTokenValid(Timestamp expiredTime){

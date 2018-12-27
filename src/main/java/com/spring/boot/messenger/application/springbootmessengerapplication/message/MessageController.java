@@ -3,6 +3,7 @@ package com.spring.boot.messenger.application.springbootmessengerapplication.mes
 import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,9 +27,12 @@ public class MessageController {
 	private AuthTokenServiceImpl authService;
 	
 	@PostMapping(path = "messages")
+	@CrossOrigin(origins = "http://localhost:3000")
 	public void sendMessage(@RequestBody MessageRequest message, @RequestHeader String authToken) {
 		boolean isTokenValid = authService.isTokenValid(authToken);
 		if(isTokenValid) {
+			String sender = authService.findContactForAuthToken(authToken);
+			message.setSender(sender);
 			messageService.addMessage(message);
 		}
 		else {
@@ -36,7 +40,8 @@ public class MessageController {
 		}
 	}
 	
-	@GetMapping(path = "messages") //pagination required
+	@CrossOrigin(origins = "http://localhost:3000")
+	@GetMapping(path = "received-messages") //pagination required
 	public List<Messages> receiveMessage(@RequestHeader String authToken) {
 		boolean isTokenValid = authService.isTokenValid(authToken);
 		if(isTokenValid) {
@@ -46,7 +51,18 @@ public class MessageController {
 		throw new UnAuthorisedException();	
 	}
 	
-	@GetMapping(path = "messages/{id}")
+	@CrossOrigin(origins = "http://localhost:3000")
+	@GetMapping(path = "sent-messages") //pagination required
+	public List<Messages> sentMessages(@RequestHeader String authToken) {
+		boolean isTokenValid = authService.isTokenValid(authToken);
+		if(isTokenValid) {
+			String sender = authService.findContactForAuthToken(authToken);
+			return messageService.getSentMessages(sender);
+		}
+		throw new UnAuthorisedException();	
+	}
+
+	@GetMapping(path = "receive-message/{id}")
 	public Messages receiveMessageById(@PathVariable int id, @RequestHeader String authToken){
 		boolean isTokenValid = authService.isTokenValid(authToken);
 		if(isTokenValid) {
@@ -59,7 +75,7 @@ public class MessageController {
 		throw new UnAuthorisedException("No message found with this id"); //add message error
 	}
 		
-	@DeleteMapping(path = "messages/{id}")
+	@DeleteMapping(path = "delete-message/{id}")
 	public void deleteMessageById(@PathVariable int id, @RequestHeader String authToken) {
 		boolean isTokenValid = authService.isTokenValid(authToken);
 		if(isTokenValid) {
@@ -73,7 +89,7 @@ public class MessageController {
 		throw new UnAuthorisedException("No message found with this id");
 	}
 	
-	@PutMapping(path = "messages/{id}")
+	@PutMapping(path = "edit-message/{id}")
 	public void editMessage(@RequestBody MessageRequest message, @PathVariable int id, @RequestHeader String authToken) {
 		boolean isTokenValid = authService.isTokenValid(authToken);
 		if(isTokenValid) {
@@ -87,28 +103,46 @@ public class MessageController {
 		throw new UnAuthorisedException();
 	}
 	
-//	@GetMapping(path = "allmessages")	//pagination required
-//	public Page<Messages> retriveAllMessages(@RequestParam(value = "page_num", required = false, defaultValue = "1") int page_num,
-//												@RequestParam(value = "page_size", required = false, defaultValue = "3") int page_size) {
-//		Page<Messages> messages = messageService.getAllMessages(page_num,page_size);
-//		return messages;
-//	}
-	
-	@GetMapping(path = "allmessages")	//pagination required
+	@CrossOrigin(origins = "http://localhost:3000")
+	@GetMapping(path = "db-messages")	//pagination required
 	public Page<Messages> retriveAllMessages(@RequestParam(value = "page_num", required = false, defaultValue = "1") int page_num,
 												@RequestParam(value = "page_size", required = false, defaultValue = "3") int page_size) {
 		Page<Messages> messages = messageService.getPagination(page_num,page_size);
 		return messages;
 	}
 	
-//	@GetMapping(path = "allmessages")
-//	public ResponseEntity<List<MessageRequest>> retriveAllMessages() {
-//		List<MessageRequest> message =  service.getAllMessages();
-//		if (message.isEmpty()) {
-//            return new ResponseEntity(HttpStatus.NO_CONTENT);
-//            // You many decide to return HttpStatus.NOT_FOUND
-//        }
-//        return new ResponseEntity<List<MessageRequest>>(message, HttpStatus.OK);
-//		
-//	}
+	@CrossOrigin(origins = "http://localhost:3000")
+	@GetMapping(path = "messages")
+	public List<Messages> findMessages(@RequestHeader String authToken){
+		boolean isTokenValid = authService.isTokenValid(authToken);
+		if(isTokenValid) {
+			String userContact = authService.findContactForAuthToken(authToken);
+			return messageService.getAllMessagesForAUser(userContact);
+		}
+		throw new UnAuthorisedException();	
+	}
+	
+	@CrossOrigin(origins = "http://localhost:3000")
+	@GetMapping(path = "messages1")
+	public Page<Messages> findMessages(@RequestParam(value = "page_num", required = false, defaultValue = "1") int page_num,
+			@RequestParam(value = "page_size", required = false, defaultValue = "3") int page_size,@RequestHeader String authToken){
+		boolean isTokenValid = authService.isTokenValid(authToken);
+		if(isTokenValid) {
+			String userContact = authService.findContactForAuthToken(authToken);
+			return messageService.getAllMessagesForAUser(userContact, page_num, page_size);
+		}
+		throw new UnAuthorisedException();	
+	}
+	
 }
+
+//@GetMapping(path = "allmessages")
+//public ResponseEntity<List<MessageRequest>> retriveAllMessages() {
+//	List<MessageRequest> message =  service.getAllMessages();
+//	if (message.isEmpty()) {
+//        return new ResponseEntity(HttpStatus.NO_CONTENT);
+//        // You many decide to return HttpStatus.NOT_FOUND
+//    }
+//    return new ResponseEntity<List<MessageRequest>>(message,   .OK);
+//	
+//}

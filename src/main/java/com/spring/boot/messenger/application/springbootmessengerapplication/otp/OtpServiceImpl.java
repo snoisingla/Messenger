@@ -12,7 +12,7 @@ import java.sql.Timestamp;
 @Repository
 public class OtpServiceImpl{
 	
-	private static int ExpiryDurationInMinutes = 5;
+	private static int ExpiryDurationInMinutes = 15;
 	
 	@Autowired
 	private OtpRepository otpService;

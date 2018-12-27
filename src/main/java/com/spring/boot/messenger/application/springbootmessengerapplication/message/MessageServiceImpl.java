@@ -27,13 +27,12 @@ public class MessageServiceImpl{
 	public Page<Messages> getPagination(int page_num, int page_size){
 		PageRequest page = PageRequest.of(page_num-1,page_size,Sort.Direction.DESC, "id" );
 		Page<Messages> message= messageService.findAll(page);
-		System.out.println("ddd........"+message.get());
 		return message;
 	}
 	
 	public void addMessage(MessageRequest msgRequest) {
 		Messages msg = new Messages();
-		msg.setText(msgRequest.getText());
+		msg.setText(msgRequest.getText());		
 		msg.setSender(userService.fetchUserProfile(msgRequest.getSender()));
 		msg.setReceiver(userService.fetchUserProfile(msgRequest.getReceiver()));
 		messageService.save(msg);
@@ -42,6 +41,11 @@ public class MessageServiceImpl{
 	public List<Messages> getMessagesForReceiver(String receiverContactNumber){ //delete it from here and directly implement in controller
 		Users receiver = userService.fetchUserProfile(receiverContactNumber);
 		return receiver.getReceivedMessages();
+	}
+	
+	public List<Messages> getSentMessages(String senderContactNumber){ //delete it from here and directly implement in controller
+		Users receiver = userService.fetchUserProfile(senderContactNumber);
+		return receiver.getSentMessages();
 	}
 	
 	public Messages getMessageFromId(long id) {
@@ -67,10 +71,16 @@ public class MessageServiceImpl{
 		messageService.save(messages.get());
 	}
 	
-	public Page<Messages> getAllMessages(int page_num, int page_size){
-		return getPagination(page_num,page_size);
+	public Page<Messages> getAllMessagesForAUser(String contact, int page_num, int page_size) {
+		Users user = userService.fetchUserProfile(contact);
+		PageRequest page = PageRequest.of(page_num-1,page_size,Sort.Direction.DESC, "id" );
+		return messageService.findBySenderOrReceiverOrderByIdDesc(user,user, page);
 	}
 	
+	public List<Messages> getAllMessagesForAUser(String contact) {
+		Users user = userService.fetchUserProfile(contact);
+		return messageService.findBySenderOrReceiverOrderByIdDesc(user,user);
+	}
 	
 	
 //	public List<MessageRequest> getAllMessages(int page_num, int page_size){
