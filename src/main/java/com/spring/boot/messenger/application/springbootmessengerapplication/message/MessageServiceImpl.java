@@ -1,7 +1,7 @@
 package com.spring.boot.messenger.application.springbootmessengerapplication.message;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -77,9 +77,23 @@ public class MessageServiceImpl{
 		return messageService.findBySenderOrReceiverOrderByIdDesc(user,user, page);
 	}
 	
-	public List<Messages> getAllMessagesForAUser(String contact) {
+	public LinkedHashSet<Users> getAllMessagesForAUser(String contact) { //sent + inbox
 		Users user = userService.fetchUserProfile(contact);
-		return messageService.findBySenderOrReceiverOrderByIdDesc(user,user);
+		List<Messages> messages =  messageService.findBySenderOrReceiverOrderByIdDesc(user,user);
+		LinkedHashSet<Users> senderList = new LinkedHashSet<>();
+		for(Messages message : messages) {
+			Users friend = (message.getSender().getContactNumber().equals(contact)) ? message.getReceiver() : message.getSender();
+			if(!senderList.contains(friend)) {
+				senderList.add(friend);
+			}	
+		}
+		return senderList;
+	}
+
+	public List<Messages> findConversationBetweenTwoUsers(String user1Contact, String user2Contact){
+		Users user1 = userService.fetchUserProfile(user1Contact);
+		Users user2 = userService.fetchUserProfile(user2Contact);
+		return messageService.findBySenderAndReceiverOrReceiverAndSenderOrderByIdDesc(user1, user2);		
 	}
 	
 	

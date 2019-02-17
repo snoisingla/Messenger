@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.boot.messenger.application.springbootmessengerapplication.authtoken.AuthTokenServiceImpl;
+import com.spring.boot.messenger.application.springbootmessengerapplication.user.UserServiceImpl;
+import com.spring.boot.messenger.application.springbootmessengerapplication.user.Users;
 
 
 @RestController
@@ -113,7 +115,7 @@ public class MessageController {
 	
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path = "messages")
-	public List<Messages> findMessages(@RequestHeader String authToken){
+	public LinkedHashSet<Users> findMessages(@RequestHeader String authToken){
 		boolean isTokenValid = authService.isTokenValid(authToken);
 		if(isTokenValid) {
 			String userContact = authService.findContactForAuthToken(authToken);
@@ -123,8 +125,8 @@ public class MessageController {
 	}
 	
 	@CrossOrigin(origins = "http://localhost:3000")
-	@GetMapping(path = "messages1")
-	public Page<Messages> findMessages(@RequestParam(value = "page_num", required = false, defaultValue = "1") int page_num,
+	@GetMapping(path = "messages1") //sent + inbox
+	public Page<Messages> findMessagesForUser(@RequestParam(value = "page_num", required = false, defaultValue = "1") int page_num,
 			@RequestParam(value = "page_size", required = false, defaultValue = "3") int page_size,@RequestHeader String authToken){
 		boolean isTokenValid = authService.isTokenValid(authToken);
 		if(isTokenValid) {
@@ -132,6 +134,17 @@ public class MessageController {
 			return messageService.getAllMessagesForAUser(userContact, page_num, page_size);
 		}
 		throw new UnAuthorisedException();	
+	}
+	
+	@CrossOrigin(origins = "http://localhost:3000")
+	@GetMapping(path = "messages/{userContact}")
+	public List<Messages> findMessagesBetweenTwoUsers(@PathVariable String userContact, @RequestHeader String authToken){
+		boolean isTokenValid = authService.isTokenValid(authToken);
+		if(isTokenValid) {
+			String signedInUserContact = authService.findContactForAuthToken(authToken);
+			return messageService.findConversationBetweenTwoUsers(userContact, signedInUserContact);
+		}
+		throw new UnAuthorisedException();
 	}
 	
 }

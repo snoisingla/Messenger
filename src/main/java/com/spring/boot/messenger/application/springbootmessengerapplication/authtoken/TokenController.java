@@ -15,7 +15,5 @@ public class TokenController {
 	public String isValid(@PathVariable String contactNumber) {
 		return tokenService.addAndReturnToken(contactNumber);
 	}
-	
-	
 
 }

@@ -16,7 +16,7 @@ public class Messages {
 	private String text;
 	
 	@ManyToOne
-	private Users sender;
+	private Users sender; //senderContact
 	
 	@ManyToOne
 	private Users receiver;	

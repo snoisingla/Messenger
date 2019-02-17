@@ -34,13 +34,16 @@ public class Users {
 	
 	private String imageDownloadUrl;
 	
+	private String lastSeenAt;
+	
 	protected Users() {
 	}
 	
-	public Users(String contactNumber, String name, String imageDownloadUrl) {
+	public Users(String contactNumber, String name, String imageDownloadUrl, String lastSeenAt) {
 		this.contactNumber = contactNumber;
 		this.name = name;
 		this.imageDownloadUrl = imageDownloadUrl;
+		this.lastSeenAt = lastSeenAt;
 	}
 	
 	public List<Messages> getSentMessages() {
@@ -90,6 +93,16 @@ public class Users {
 	public void setImageDownloadUrl(String imageDownloadUrl) {
 		this.imageDownloadUrl = imageDownloadUrl;
 	}
+
+	public String getLastSeenAt() {
+		return lastSeenAt;
+	}
+
+	public void setLastSeenAt(String lastSeenAt) {
+		this.lastSeenAt = lastSeenAt;
+	}
+	
+	
 	
 //	@Override
 //	public String toString() {

@@ -39,15 +39,15 @@ public class UserController {
 	private OtpServiceImpl otpService;
 	
 	@Autowired
-	private AuthTokenServiceImpl authservice;
+	private AuthTokenServiceImpl authService;
 	
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(path = "users/uploadImage") 
 	public UploadImageResponse uploadImage(@RequestParam("file") MultipartFile file, 
 			@RequestHeader String authToken) {
-		boolean isTokenValid = authservice.isTokenValid(authToken);
+		boolean isTokenValid = authService.isTokenValid(authToken);
 		if(isTokenValid) {
-			String contact = authservice.findContactForAuthToken(authToken);
+			String contact = authService.findContactForAuthToken(authToken);
 			System.out.println("......................."+file); 
 			//org.springframework.web.multipart.support.StandardMultipartHttpServletRequest$StandardMultipartFile@2f2200a1
 			String fileName = userService.storeImageAndReturnFileName(file);
@@ -102,7 +102,7 @@ public class UserController {
 				otpImplementation.getOtp());
 		if(verifyResult.isVerified() == true) {
 			userService.updateUser(otpImplementation.getContactNumber()); //set verified = true
-			String token = authservice.addAndReturnToken(otpImplementation.getContactNumber());
+			String token = authService.addAndReturnToken(otpImplementation.getContactNumber());
 			verifyResult.setAuthToken(token);
 		}
 		return verifyResult;
@@ -111,7 +111,7 @@ public class UserController {
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path = "users/{profileContactNumber}")
 	public Users fetchUser(@PathVariable String profileContactNumber,@RequestHeader String authToken) {
-		boolean isTokenValid = authservice.isTokenValid(authToken);
+		boolean isTokenValid = authService.isTokenValid(authToken);
 		if(isTokenValid) {
 			return userService.fetchUserProfile(profileContactNumber); 
 		}
@@ -123,5 +123,18 @@ public class UserController {
 	@GetMapping(path = "allusers")
 	public List<Users> fetchAllProfiles(){
 		return userService.getAllProfiles();
+	}
+	
+	@PostMapping(path = "users/updateLastSeen")
+	@CrossOrigin(origins = "http://localhost:3000")
+	public void updateLastSeen(@RequestHeader String authToken) {
+		boolean isTokenValid = authService.isTokenValid(authToken);
+		if(isTokenValid) {
+			String userContactNumber = authService.findContactForAuthToken(authToken);
+			userService.updateLastSeen(userContactNumber);
+		}
+		else {
+			throw new UnAuthorisedException();
+		}
 	}
 }
