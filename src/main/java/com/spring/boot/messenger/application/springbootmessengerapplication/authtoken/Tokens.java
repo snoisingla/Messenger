@@ -4,7 +4,6 @@ import java.sql.Timestamp;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 @Entity
@@ -32,23 +31,16 @@ public class Tokens {
 		return contactNumber;
 	}
 
-	public void setContactNumber(String contactNumber) {
-		this.contactNumber = contactNumber;
-	}
-
 	public String getAuthToken() {
 		return authToken;
 	}
-
-	public void setAuthToken(String authToken) {
-		this.authToken = authToken;
-	}
-
-	public Timestamp getExpiryTime() {
+	
+	private Timestamp getExpiryTime() {
 		return expiryTime;
 	}
-
-	public void setExpiryTime(Timestamp expiryTime) {
-		this.expiryTime = expiryTime;
+	
+	public boolean isValid(){
+		Timestamp currentTime = new Timestamp(System.currentTimeMillis());
+		return (getExpiryTime().after(currentTime)); //expired > current
 	}
 }

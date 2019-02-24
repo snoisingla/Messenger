@@ -39,6 +39,11 @@ public class Users {
 	protected Users() {
 	}
 	
+	public Users(String contactNumber, String name) {
+		this.contactNumber = contactNumber;
+		this.name = name;
+	}
+	
 	public Users(String contactNumber, String name, String imageDownloadUrl, String lastSeenAt) {
 		this.contactNumber = contactNumber;
 		this.name = name;

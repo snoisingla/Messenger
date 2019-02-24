@@ -17,54 +17,28 @@ public class OtpServiceImpl{
 	@Autowired
 	private OtpRepository otpService;
 	
-	VerifyOtpResponse verifyOtpResponse;
-	
-	private Integer generateOTP() {
-		return 1000 + new Random().nextInt(8999);
+	public Otps getUserOtpDetails(String contact) {
+		Optional<Otps> otp = otpService.findById(contact);
+		return (otp.isPresent()) ? otp.get() : null;		
 	}
 	
-	public Timestamp findOtpExpiryTime(){
-		Timestamp ts = new Timestamp(System.currentTimeMillis());
-        Calendar cal = Calendar.getInstance();
-		cal.setTime(ts);
-		cal.add(Calendar.MINUTE, ExpiryDurationInMinutes);
-		return new Timestamp(cal.getTime().getTime());
-	}
-	
-	public boolean isOtpExpired(Timestamp expiredTime){
-		Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-		if(expiredTime.after(currentTime)){ //expired > current
-			return false;
-		}
-		return true; //expired
-	}
-	
-	public Otps getUserWithOtpPresent(String contactnumber) {
-		Optional<Otps> otp = otpService.findById(contactnumber);
-		return (!otp.isPresent()) ? null : otp.get();		
-	}
-	
-	public void generateSaveAndSendOTP(String contactNumber) {
+	public void generateSaveAndSendOTP(String contact) {
 		Timestamp newExpiryTimestamp = findOtpExpiryTime();
-		Otps otpImpl = getUserWithOtpPresent(contactNumber);
-		if (otpImpl == null) { //no otp found, add new entry : new user
+		Otps otpDetails = getUserOtpDetails(contact);
+		if (otpDetails == null) { //no otp found, add new entry : new user
 			Integer otp = generateOTP();
-			Otps otpValues = new Otps(contactNumber,otp,newExpiryTimestamp);
+			Otps otpValues = new Otps(contact,otp,newExpiryTimestamp);
 			otpService.save(otpValues);
-		} else if (isOtpExpired(otpImpl.getExpiryTime())) { //otp got expired
+		} else if (otpDetails.isValid()) { //otp got expired
 			Integer otp = generateOTP();
-			otpImpl.setExpiryTime(newExpiryTimestamp);
-			otpImpl.setOtp(otp);
+			otpDetails.setExpiryTime(newExpiryTimestamp);
+			otpDetails.setOtp(otp);
 		}
-		sendOTPViaSMS(contactNumber,otpImpl);
+		sendOTPViaSMS(contact,otpDetails);
 	}
 	
-	private void sendOTPViaSMS(String contactNumber, Otps otp) {
-		// TODO Auto-generated method stub
-	}
-	
-	public VerifyOtpResponse verifyOTP(String contactnumber, Integer otp) {
-		Optional<Otps> otpValue = otpService.findById(contactnumber);
+	public VerifyOtpResponse verifyOTP(String contact, Integer otp) {
+		Optional<Otps> otpValue = otpService.findById(contact);
 		if(!otpValue.isPresent()) {
 			return null;
 		}
@@ -72,7 +46,7 @@ public class OtpServiceImpl{
 			if(!otpValue.get().getOtp().equals(otp)) {
 				return new VerifyOtpResponse(false,false); //wrong otp
 			}
-			else if(isOtpExpired(otpValue.get().getExpiryTime())) {
+			else if(otpValue.get().isValid()) {
 				return new VerifyOtpResponse(true,false); //expired otp
 			}
 			return new VerifyOtpResponse(false,true); //correct otp
@@ -82,41 +56,21 @@ public class OtpServiceImpl{
 	public List<Otps> retreiveAll(){
 		return otpService.findAll();
 	}
+	
+	private Integer generateOTP() {
+		return 1000 + new Random().nextInt(8999);
+	}
+	
+	private Timestamp findOtpExpiryTime(){
+		Timestamp ts = new Timestamp(System.currentTimeMillis());
+        Calendar cal = Calendar.getInstance();
+		cal.setTime(ts);
+		cal.add(Calendar.MINUTE, ExpiryDurationInMinutes);
+		return new Timestamp(cal.getTime().getTime());
+	}
+	
+
+	private void sendOTPViaSMS(String contact, Otps otp) {
+		// TODO Auto-generated method stub
+	}
 }
-
-//private boolean isValidOtp(String otpGeneratedTime) {		
-//String currentTime = getCurrentTime();
-//SimpleDateFormat format = new SimpleDateFormat("hh:mm");  
-//	Date d1 = null;
-//	Date d2 = null;
-//	try {
-//	    d1 = format.parse(otpGeneratedTime);
-//	    d2 = format.parse(currentTime);
-//	} catch (Exception e) {
-//	    e.printStackTrace();
-//	}    
-//	long diff = d2.getTime() - d1.getTime();
-//	long diffMinutes = diff / (60 * 1000);
-//	//long diffHours = diff / (60 * 60 * 1000); 
-//	
-//	if(diffMinutes >= 5) {
-//		return false;
-//	}
-//	return true;
-//}
-
-//private String getCurrentTime() {
-//	SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm");
-//	Calendar calendar = Calendar.getInstance();
-//	return dateFormat.format(calendar.getTime());
-//}
-
-/*	client shows enter phone number and send otp screen
-user enter phone number and click on send otp
-client request server to send otp to user via sms with request parameter as phone number(Post/sendOTP)
-client updates screen to enter otp and verify after server sends ok response
-user enter otp
-clients send request to server to verify otp with phone number and otp as request parameter and(GET/sendOTP/phoneno/otp)
-true and false as response
-if true, client goes to next screen
-if false, client asks to re-enter correct otp, enable re-send otp button */

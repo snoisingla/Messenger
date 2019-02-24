@@ -48,8 +48,6 @@ public class UserController {
 		boolean isTokenValid = authService.isTokenValid(authToken);
 		if(isTokenValid) {
 			String contact = authService.findContactForAuthToken(authToken);
-			System.out.println("......................."+file); 
-			//org.springframework.web.multipart.support.StandardMultipartHttpServletRequest$StandardMultipartFile@2f2200a1
 			String fileName = userService.storeImageAndReturnFileName(file);
 			String imageDownloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
 					.path("/downloadImage/").path(fileName).toUriString();
@@ -80,19 +78,21 @@ public class UserController {
 	
 	@CrossOrigin(origins = "http://localhost:3000")
 	@GetMapping(path = "userExist/{contactNumber}")
-	public boolean isUsersExists(@PathVariable String contactNumber) {
-		return userService.isUserExist(contactNumber);
+	public boolean isUserPresent(@PathVariable String contactNumber) {
+		return userService.isUserPresent(contactNumber);
 	}
 	
 	@CrossOrigin(origins = "http://localhost:3000")
 	@PostMapping(path = "users")
-	public ResponseEntity uploadProfile(@RequestBody Users user) {
-		String userContact = userService.saveUsersProfile(user);
-		if(userContact == null) {
-			return new ResponseEntity(HttpStatus.CONFLICT);
-		}	
-		otpService.generateSaveAndSendOTP(user.getContactNumber());
-		return new ResponseEntity(HttpStatus.OK);
+	public ResponseEntity<String> uploadProfile(@RequestBody Users user) {
+		if(userService.isUserPresent(user.getContactNumber())) {
+			return new ResponseEntity<>("User already exists", HttpStatus.CONFLICT);
+		}
+		else {
+			userService.saveUsersProfile(user);
+			otpService.generateSaveAndSendOTP(user.getContactNumber());
+			return new ResponseEntity<>(HttpStatus.OK);
+		}
 	}
 	
 	@CrossOrigin(origins = "http://localhost:3000")
@@ -100,7 +100,7 @@ public class UserController {
 	public VerifyOtpResponse verifyUser(@RequestBody Otps otpImplementation) {
 		VerifyOtpResponse verifyResult = otpService.verifyOTP(otpImplementation.getContactNumber(),
 				otpImplementation.getOtp());
-		if(verifyResult.isVerified() == true) {
+		if(verifyResult.isVerified()) {
 			userService.updateUser(otpImplementation.getContactNumber()); //set verified = true
 			String token = authService.addAndReturnToken(otpImplementation.getContactNumber());
 			verifyResult.setAuthToken(token);

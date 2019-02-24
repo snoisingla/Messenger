@@ -6,19 +6,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -65,12 +61,12 @@ public class UserServiceImpl {
 		
 	}
 	
-	public String saveUsersProfile(Users user) {
-		boolean isExists = userService.existsById(user.getContactNumber());
-		return (isExists) ? null : userService.save(user).getContactNumber();
+	public void saveUsersProfile(Users user) {
+		userService.save(user);
 	}
 	
-	public boolean isUserExist(String contactNumber) {
+	
+	public boolean isUserPresent(String contactNumber) {
 		return userService.existsById(contactNumber);
 	}
 	
@@ -83,7 +79,6 @@ public class UserServiceImpl {
 		catch(PersistenceException e) {
 			System.out.println("User already exists");
 		}
-		//userService.save(user);
 	}
 	
 	public void saveUserImage(String contactNumber, String imageDownloadUrl) {

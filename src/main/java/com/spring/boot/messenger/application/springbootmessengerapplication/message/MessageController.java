@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.spring.boot.messenger.application.springbootmessengerapplication.authtoken.AuthTokenServiceImpl;
-import com.spring.boot.messenger.application.springbootmessengerapplication.user.UserServiceImpl;
 import com.spring.boot.messenger.application.springbootmessengerapplication.user.Users;
 
 
@@ -145,17 +143,5 @@ public class MessageController {
 			return messageService.findConversationBetweenTwoUsers(userContact, signedInUserContact);
 		}
 		throw new UnAuthorisedException();
-	}
-	
+	}	
 }
-
-//@GetMapping(path = "allmessages")
-//public ResponseEntity<List<MessageRequest>> retriveAllMessages() {
-//	List<MessageRequest> message =  service.getAllMessages();
-//	if (message.isEmpty()) {
-//        return new ResponseEntity(HttpStatus.NO_CONTENT);
-//        // You many decide to return HttpStatus.NOT_FOUND
-//    }
-//    return new ResponseEntity<List<MessageRequest>>(message,   .OK);
-//	
-//}
