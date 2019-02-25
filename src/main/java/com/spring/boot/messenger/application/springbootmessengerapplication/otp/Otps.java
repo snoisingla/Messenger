@@ -53,6 +53,7 @@ public class Otps {
 	public boolean isValid(){
 		Timestamp currentTime = new Timestamp(System.currentTimeMillis());
 		return (getExpiryTime().after(currentTime)); //expired > current
+		//doesn't compare milliseconds
 	}
 	
 	@Override

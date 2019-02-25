@@ -1,6 +1,6 @@
 package com.spring.boot.messenger.application.springbootmessengerapplication;
 
-import java.util.Date;
+import java.util.Calendar;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,8 +16,6 @@ import com.spring.boot.messenger.application.springbootmessengerapplication.auth
 import static org.mockito.Mockito.when;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -32,45 +30,30 @@ public class AuthTokenServiceImplTests {
 	
 	@Test
 	public void test_findContactForAuthToken1() {
-
-		String expectedContact = "testContact";
-	    Date parsedDate = new Date();
-		Timestamp pastTimeStamp = new java.sql.Timestamp(parsedDate.getTime());
-		Tokens t = new Tokens(expectedContact,"testAuth",pastTimeStamp);
+		String contact = "testContact";
+		Tokens t = new Tokens(contact,"testAuth",getCustomTimestamp(5));
 		when(authServiceMock.findByAuthToken("testAuth")).thenReturn(t);
 		
 		String actualContact = authTokenServiceImpl.findContactForAuthToken("testAuth");
-		Assert.assertEquals(expectedContact,actualContact);
+		Assert.assertEquals(contact,actualContact);
 	}
 	
 	@Test
 	public void test_findContactForAuthToken_TokenNotPresent() {
-
 		Tokens t = null;
 		when(authServiceMock.findByAuthToken("testAuth")).thenReturn(t);
 		
 		String actualContact = authTokenServiceImpl.findContactForAuthToken("testAuth");
 		Assert.assertNull(actualContact);
-
 	}
 	
 	@Test
 	public void test_isTokenValid_tokenExpired() {
-		String s = "2018-12-30 15:23:01.975"; //expired
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.SSS");
-	    Date parsedDate;
-		try {
-			parsedDate = dateFormat.parse(s);
-			Timestamp pastTimeStamp = new java.sql.Timestamp(parsedDate.getTime());
-			
-			Tokens t = new Tokens("testContact","testAuth",pastTimeStamp);
-			
-			when(authServiceMock.findByAuthToken("testAuth")).thenReturn(t);
-			boolean actual = authTokenServiceImpl.isTokenValid("testAuth");
-			Assert.assertFalse(actual);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
+		Tokens t = new Tokens("testContact","testAuth",getCustomTimestamp(-5));
+		when(authServiceMock.findByAuthToken("testAuth")).thenReturn(t);
+		
+		boolean actual = authTokenServiceImpl.isTokenValid("testAuth");
+		Assert.assertFalse(actual);
 	}
 	
 	@Test
@@ -80,6 +63,13 @@ public class AuthTokenServiceImplTests {
 		
 		boolean actual = authTokenServiceImpl.isTokenValid("testAuth");
 		Assert.assertFalse(actual);
+	}
+	
+	private Timestamp getCustomTimestamp(int durationInDays) {
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DAY_OF_WEEK, durationInDays); 
+		Timestamp timeStamp = new Timestamp(cal.getTimeInMillis());
+		return timeStamp;
 	}
 	
 }

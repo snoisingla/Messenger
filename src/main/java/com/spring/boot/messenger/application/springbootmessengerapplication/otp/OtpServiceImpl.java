@@ -46,7 +46,7 @@ public class OtpServiceImpl{
 			if(!otpValue.get().getOtp().equals(otp)) {
 				return new VerifyOtpResponse(false,false); //wrong otp
 			}
-			else if(otpValue.get().isValid()) {
+			else if(!otpValue.get().isValid()) {
 				return new VerifyOtpResponse(true,false); //expired otp
 			}
 			return new VerifyOtpResponse(false,true); //correct otp

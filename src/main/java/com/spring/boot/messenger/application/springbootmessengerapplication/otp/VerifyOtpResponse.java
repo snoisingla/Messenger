@@ -41,5 +41,17 @@ public class VerifyOtpResponse {
 	}
 	public void setVerified(boolean verified) {
 		this.verified = verified;
-	}	
+	}
+	
+	public boolean equals(Object obj) {
+		if(this == obj) {
+			return true;
+		}
+		if(obj == null || this.getClass() != obj.getClass()) {
+			return false;
+		}
+		VerifyOtpResponse response = (VerifyOtpResponse) obj;
+		return (response.expired == this.expired &&
+				response.verified == response.verified);
+	}
 }
