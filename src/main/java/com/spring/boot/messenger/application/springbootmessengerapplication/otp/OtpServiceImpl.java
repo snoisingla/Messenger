@@ -29,7 +29,7 @@ public class OtpServiceImpl{
 			Integer otp = generateOTP();
 			Otps otpValues = new Otps(contact,otp,newExpiryTimestamp);
 			otpService.save(otpValues);
-		} else if (otpDetails.isValid()) { //otp got expired
+		} else if (!otpDetails.isValid()) { //otp got expired
 			Integer otp = generateOTP();
 			otpDetails.setExpiryTime(newExpiryTimestamp);
 			otpDetails.setOtp(otp);

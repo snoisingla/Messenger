@@ -54,7 +54,7 @@ public class UserController {
 			userService.saveUserImage(contact, imageDownloadUrl);
 			return new UploadImageResponse(fileName, imageDownloadUrl, file.getContentType(), file.getSize());
 		}
-		throw new UnAuthorisedException();	
+		throw new UnAuthorisedException();		
 	}
 	
 	@GetMapping(path = "/downloadImage/{fileName}")
